@@ -1,0 +1,21 @@
+{
+  "name": "mlcl_ping",
+  "version": "0.0.1",
+  "description": "Molecuel ping module - Stores ping information in elastic",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "author": "Dominic Böttger",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^1.5.2",
+    "pingjs": "^0.9.0"
+  },
+  "devDependencies": {
+    "mlcl_elastic": "^0.8.8",
+    "mlcl_queue": "0.0.4",
+    "mocha": "^2.3.4",
+    "should": "^8.1.1"
+  }
+}
