@@ -4,6 +4,7 @@
 import pinger = require('pingjs');
 import pinglog = require('./types/pinglog');
 import async = require('async');
+import _ = require('lodash');
 
 class mlcl_ping {
   public static loaderversion = 2;
@@ -16,10 +17,12 @@ class mlcl_ping {
   protected elastic: any;
   public queuename:string;
   protected index:string;
+  protected consumer:boolean;
 
   constructor(molecuel:any, config:any) {
     mlcl_ping.molecuel = molecuel;
     this.pinger = new pinger();
+    this.consumer = false;
     // get the queue system
     mlcl_ping.molecuel.once('mlcl::queue::init:post', (queue) => {
       this.queue = queue;
@@ -58,7 +61,23 @@ class mlcl_ping {
       mlcl_ping.molecuel.log.debug('mlcl_ping', 'Initializing ping queue');
       this.queuename = 'mlcl::ping::logs';
       this.channel = this.queue.getChannel();
-      this.initConsumer();
+      if(mlcl_ping.molecuel.config.ping && mlcl_ping.molecuel.config.ping.restrictroles) {
+        var restrictoleslength:number = mlcl_ping.molecuel.config.ping.restrictroles.length;
+        var currentlength:number = 0;
+        if(mlcl_ping.molecuel.config.ping.restrictroles.length > 0) {
+          while(currentlength < restrictoleslength && !this.consumer) {
+            var currentelement = mlcl_ping.molecuel.config.ping.restrictroles[currentlength];
+            if(_.indexOf(mlcl_ping.molecuel.serverroles, currentelement) !== -1) {
+              this.consumer = true;
+              this.initConsumer();
+            }
+            currentlength++;
+          }
+        }
+
+      } else {
+        this.initConsumer();
+      }
     } else {
       mlcl_ping.molecuel.log.error('mlcl_ping', 'Error while Initializing queue');
     }

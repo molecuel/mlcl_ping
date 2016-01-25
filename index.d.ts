@@ -10,6 +10,7 @@ declare class mlcl_ping {
     protected elastic: any;
     queuename: string;
     protected index: string;
+    protected consumer: boolean;
     constructor(molecuel: any, config: any);
     protected initQueue(): void;
     protected initConsumer(): void;
