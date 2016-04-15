@@ -115,7 +115,10 @@ class mlcl_ping {
                 ch.ack(msg);
               }
             });
-          })
+          }).catch((err) => {
+            mlcl_ping.molecuel.log.error('mlcl_ping', 'Error while pinging device: '+err.message, err);
+            ch.ack(msg);
+          });
         } else {
           ch.ack(msg);
         }
