@@ -45,7 +45,8 @@ class mlcl_ping {
       }
 
       var mapping = {};
-      if(mlcl_ping.molecuel.config.ping && mlcl_ping.molecuel.config.ping.store.ttl) {
+      if(mlcl_ping.molecuel.config.ping && mlcl_ping.molecuel.config.ping.store &&
+        mlcl_ping.molecuel.config.ping.store.ttl) {
         mapping[this.index] = {
           '_ttl' : { 'enabled' : true, 'default': mlcl_ping.molecuel.config.ping.store.ttl }
         };
@@ -67,10 +68,11 @@ class mlcl_ping {
         if(mlcl_ping.molecuel.config.ping.restrictroles.length > 0) {
           while(currentlength < restrictoleslength && !this.consumer) {
             var currentelement = mlcl_ping.molecuel.config.ping.restrictroles[currentlength];
-            if(_.indexOf(mlcl_ping.molecuel.serverroles, currentelement) !== -1) {
-              this.consumer = true;
-              this.initConsumer();
-            }
+            if(mlcl_ping.molecuel.serverroles &&
+              mlcl_ping.molecuel.serverroles[currentelement]) {
+                this.consumer = true;
+                this.initConsumer();
+              }
             currentlength++;
           }
         }
@@ -83,6 +85,7 @@ class mlcl_ping {
     }
   }
   protected initConsumer() {
+    mlcl_ping.molecuel.log.info('mlcl_ping', 'Init consumer for ping');
     // get the ping channel
     this.channel.then((ch) => {
       ch.assertQueue(this.queuename);
@@ -108,7 +111,8 @@ class mlcl_ping {
               if(!error) {
                 ch.ack(msg);
               } else {
-                ch.nack(msg);
+                mlcl_ping.molecuel.log.error('mlcl_ping', 'Error while saving ping to elasticsearch: '+error.message);
+                ch.ack(msg);
               }
             });
           })

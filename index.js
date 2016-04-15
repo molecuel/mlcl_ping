@@ -1,8 +1,7 @@
 'use strict';
-var pinger = require('pingjs');
-var pinglog = require('./types/pinglog');
-var async = require('async');
-var _ = require('lodash');
+const pinger = require('pingjs');
+const pinglog = require('./types/pinglog');
+const async = require('async');
 class mlcl_ping {
     constructor(molecuel, config) {
         mlcl_ping.molecuel = molecuel;
@@ -25,7 +24,8 @@ class mlcl_ping {
                 this.index = mlcl_ping.molecuel.config.ping.store.index;
             }
             var mapping = {};
-            if (mlcl_ping.molecuel.config.ping && mlcl_ping.molecuel.config.ping.store.ttl) {
+            if (mlcl_ping.molecuel.config.ping && mlcl_ping.molecuel.config.ping.store &&
+                mlcl_ping.molecuel.config.ping.store.ttl) {
                 mapping[this.index] = {
                     '_ttl': { 'enabled': true, 'default': mlcl_ping.molecuel.config.ping.store.ttl }
                 };
@@ -46,7 +46,8 @@ class mlcl_ping {
                 if (mlcl_ping.molecuel.config.ping.restrictroles.length > 0) {
                     while (currentlength < restrictoleslength && !this.consumer) {
                         var currentelement = mlcl_ping.molecuel.config.ping.restrictroles[currentlength];
-                        if (_.indexOf(mlcl_ping.molecuel.serverroles, currentelement) !== -1) {
+                        if (mlcl_ping.molecuel.serverroles &&
+                            mlcl_ping.molecuel.serverroles[currentelement]) {
                             this.consumer = true;
                             this.initConsumer();
                         }
@@ -63,6 +64,7 @@ class mlcl_ping {
         }
     }
     initConsumer() {
+        mlcl_ping.molecuel.log.info('mlcl_ping', 'Init consumer for ping');
         this.channel.then((ch) => {
             ch.assertQueue(this.queuename);
             ch.prefetch(50);
@@ -87,7 +89,8 @@ class mlcl_ping {
                                 ch.ack(msg);
                             }
                             else {
-                                ch.nack(msg);
+                                mlcl_ping.molecuel.log.error('mlcl_ping', 'Error while saving ping to elasticsearch: ' + error.message);
+                                ch.ack(msg);
                             }
                         });
                     });
