@@ -1,6 +1,6 @@
 {
   "name": "mlcl_ping",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Molecuel ping module - Stores ping information in elastic",
   "main": "index.js",
   "scripts": {
